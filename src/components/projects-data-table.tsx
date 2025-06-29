@@ -32,42 +32,6 @@ const data: Project[] = [
     projectClient: "FinanceBank Ltd.",
     projectId: "MOB-2024-002",
   },
-  {
-    id: "proj-003",
-    projectName: "Healthcare Dashboard",
-    projectClient: "MediCare Solutions",
-    projectId: "HC-2024-003",
-  },
-  {
-    id: "proj-004",
-    projectName: "Inventory Management System",
-    projectClient: "RetailPlus Corp.",
-    projectId: "INV-2024-004",
-  },
-  {
-    id: "proj-005",
-    projectName: "Customer Support Portal",
-    projectClient: "ServiceHub LLC",
-    projectId: "CSP-2024-005",
-  },
-  {
-    id: "proj-006",
-    projectName: "Analytics Dashboard",
-    projectClient: "DataInsight Pro",
-    projectId: "AD-2024-006",
-  },
-  {
-    id: "proj-007",
-    projectName: "Learning Management System",
-    projectClient: "EduTech Academy",
-    projectId: "LMS-2024-007",
-  },
-  {
-    id: "proj-008",
-    projectName: "Real Estate Platform",
-    projectClient: "PropertyMax Realty",
-    projectId: "REP-2024-008",
-  },
 ]
 
 export type Project = {
