@@ -23,7 +23,7 @@ const data: Project[] = [
   {
     id: "proj-001",
     projectName: "E-commerce Platform",
-    projectClient: "TechCorp Inc.",
+    projectClient: "FechCorp Inc.",
     projectId: "ECOM-2024-001",
   },
   {
@@ -157,9 +157,11 @@ export const columns: ColumnDef<Project>[] = [
   },
   {
     id: "actions",
+    header: "Actions",
     enableHiding: false,
     cell: ({ row }) => {
       const project = row.original
+      const projectUrl = `https://senses-integration/questionaire/${project.id}`
 
       return (
         <DropdownMenu>
@@ -176,11 +178,25 @@ export const columns: ColumnDef<Project>[] = [
             >
               Copy project ID
             </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(project.projectName)}
+            >
+              Copy project name
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(project.projectClient)}
+            >
+              Copy client name
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(projectUrl)}
+            >
+              Copy URL
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <Link href={`/questionnaire/${project.id}`}>
               <DropdownMenuItem>View project details</DropdownMenuItem>
             </Link>
-            <DropdownMenuItem>Edit project</DropdownMenuItem>
             <DropdownMenuItem>Delete project</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
