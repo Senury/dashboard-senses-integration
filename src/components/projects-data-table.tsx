@@ -3,6 +3,7 @@
 import * as React from "react"
 import { ColumnDef } from "@tanstack/react-table"
 import { ArrowUpDown, MoreHorizontal } from "lucide-react"
+import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -112,7 +113,17 @@ export const columns: ColumnDef<Project>[] = [
         </Button>
       )
     },
-    cell: ({ row }) => <div className="font-medium">{row.getValue("projectName")}</div>,
+    cell: ({ row }) => {
+      const project = row.original
+      return (
+        <Link 
+          href={`/questionnaire/${project.id}`}
+          className="font-medium text-blue-600 hover:text-blue-800 hover:underline"
+        >
+          {row.getValue("projectName")}
+        </Link>
+      )
+    },
   },
   {
     accessorKey: "projectClient",
@@ -166,7 +177,9 @@ export const columns: ColumnDef<Project>[] = [
               Copy project ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View project details</DropdownMenuItem>
+            <Link href={`/questionnaire/${project.id}`}>
+              <DropdownMenuItem>View project details</DropdownMenuItem>
+            </Link>
             <DropdownMenuItem>Edit project</DropdownMenuItem>
             <DropdownMenuItem>Delete project</DropdownMenuItem>
           </DropdownMenuContent>
