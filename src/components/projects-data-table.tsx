@@ -17,22 +17,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 
 import { DataTable } from "@/components/data-table"
-
-// Sample data for projects
-const data: Project[] = [
-  {
-    id: "proj-001",
-    projectName: "E-commerce Platform",
-    projectClient: "FechCorp Inc.",
-    projectId: "ECOM-2024-001",
-  },
-  {
-    id: "proj-002",
-    projectName: "Mobile Banking App",
-    projectClient: "FinanceBank Ltd.",
-    projectId: "MOB-2024-002",
-  },
-]
+import { supabase } from '@/lib/supabaseClient'
 
 export type Project = {
   id: string
@@ -170,9 +155,41 @@ export const columns: ColumnDef<Project>[] = [
 ]
 
 export function ProjectsDataTable() {
+  const [projects, setProjects] = React.useState<Project[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    async function fetchProjects() {
+      setLoading(true);
+      setError(null);
+      const { data, error } = await supabase
+        .from('questionnaire_data')
+        .select('project_id, project_name, client_name');
+      
+      if (error) {
+        setError(error.message);
+        setProjects([]);
+      } else {
+        const mappedProjects = (data || []).map((row: any) => ({
+          id: row.project_id,
+          projectName: row.project_name,
+          projectClient: row.client_name,
+          projectId: row.project_id,
+        }));
+        setProjects(mappedProjects);
+      }
+      setLoading(false);
+    }
+    fetchProjects();
+  }, []);
+
+  if (loading) return <div className="p-4">Loading projects...</div>;
+  if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
+
   return (
     <div className="w-full">
-      <DataTable columns={columns} data={data} />
+      <DataTable columns={columns} data={projects} />
     </div>
-  )
+  );
 } 
