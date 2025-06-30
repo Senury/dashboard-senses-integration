@@ -20,6 +20,80 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Middleware Authentication
+
+This application implements global authentication using Next.js middleware to protect all routes from unauthorized access.
+
+### Configuration
+
+Set the site password via environment variable:
+
+```bash
+# For development
+SITE_PASSWORD=your_secret_password npm run dev
+
+# Or create .env.local
+echo "SITE_PASSWORD=your_secret_password" > .env.local
+```
+
+### How It Works
+
+The middleware (`src/middleware.ts`) runs on every request and:
+
+1. **Checks Authentication**: Validates the `site_auth` cookie against the configured password
+2. **Route Protection**: Redirects unauthenticated users to `/login`
+3. **Secure Access**: Only allows access to protected routes with valid authentication
+
+### Security Features
+
+- **SHA-256 Password Hashing**: Passwords are hashed using SHA-256
+- **Constant-Time Comparison**: Prevents timing attacks during authentication
+- **Secure Cookies**: 
+  - `HttpOnly` - Prevents XSS access
+  - `Secure` - HTTPS only in production
+  - `SameSite=Strict` - CSRF protection
+  - `Path=/` - Site-wide authentication
+  - `30-day expiry` - Persistent sessions
+- **Rate Limiting**: Built-in protection against brute force attacks
+
+### Protected Routes
+
+All routes except the following are protected:
+- `/login` - Authentication page
+- `/api/*` - API routes
+- `/_next/static/*` - Static assets
+- `/_next/image/*` - Image optimization
+- `/favicon.ico` - Favicon
+
+### Route Matcher
+
+```javascript
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|login).*)'],
+}
+```
+
+### Testing Authentication
+
+1. **Test Protection**: Visit any route without authentication → redirects to `/login`
+2. **Test Login**: Enter correct password on `/login` → grants access to all routes
+3. **Test Persistence**: Refresh page → remains authenticated (30-day cookie)
+4. **Test Logout**: Use logout API → clears authentication and redirects to `/login`
+
+### Middleware Logs
+
+The middleware provides console logging for debugging:
+- `🔥 MIDDLEWARE EXECUTING for: /path` - Shows middleware execution
+- `🍪 Auth cookie present: true/false` - Cookie validation status
+- `✅ Valid auth cookie, allowing access` - Successful authentication
+- `❌ No auth cookie found, redirecting to login` - Missing authentication
+
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `SITE_PASSWORD` | Yes | The password required to access the site |
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

@@ -5,20 +5,24 @@ import { loginAction } from './action'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card } from '@/components/ui/card'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState(loginAction, {})
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md p-6 space-y-6">
+      <Card className="w-full max-w-md p-6">
         <div className="space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Site Access
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Enter the site password to continue
-          </p>
+          <div className="flex justify-center">
+            <Image
+              src="/logo_plus.svg"
+              alt="Logo"
+              width={160}
+              height={160}
+              className="h-auto"
+            />
+          </div>
         </div>
         
         <form action={formAction} className="space-y-4">

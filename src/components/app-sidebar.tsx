@@ -18,7 +18,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <div className="flex items-center w-full py-6 pl-6">
-          <Image src="/logo.svg" alt="Logo" width={120} height={38} />
+          <Image src="/logo_plus.svg" alt="Logo" width={120} height={38} />
         </div>
       </SidebarHeader>
       <SidebarContent>
