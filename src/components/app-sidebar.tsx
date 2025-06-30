@@ -5,16 +5,13 @@ import Image from "next/image"
 
 import { NavMain } from "@/components/nav-main"
 // import { NavProjects } from "@/components/nav-projects"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { navigationData, userData, teamsData, projectsData } from "@/lib/navigation"
+import { navigationData } from "@/lib/navigation"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (

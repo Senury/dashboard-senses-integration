@@ -96,9 +96,10 @@ export default function QuestionnairePage() {
       // Navigate to the new project page
       router.push(`/questionnaire/${projectId}`);
       
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to create project:', err);
-      setError(err.message || 'Failed to create project');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create project';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }

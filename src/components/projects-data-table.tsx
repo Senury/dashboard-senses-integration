@@ -171,7 +171,7 @@ export function ProjectsDataTable() {
         setError(error.message);
         setProjects([]);
       } else {
-        const mappedProjects = (data || []).map((row: any) => ({
+        const mappedProjects = (data || []).map((row: { project_id: string; project_name: string; client_name: string }) => ({
           id: row.project_id,
           projectName: row.project_name,
           projectClient: row.client_name,

@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -73,7 +72,7 @@ export default function ProjectQuestionnairePage() {
         } else {
           setFetchError('Project not found');
         }
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('Fetch error:', err);
         setFetchError('Failed to load project data');
       } finally {
@@ -112,22 +111,7 @@ export default function ProjectQuestionnairePage() {
     return () => clearTimeout(timer);
   }, [projectInfo, clientInfo, contractorInfo, originalData]);
 
-  // Keyboard shortcut for saving (Ctrl+S / Cmd+S)
-  React.useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-        e.preventDefault();
-        if (hasUnsavedChanges && !loading) {
-          handleSave();
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [hasUnsavedChanges, loading]);
-
-  const handleSave = async () => {
+  const handleSave = React.useCallback(async () => {
     // Prevent multiple simultaneous saves using both state and ref
     if (loading || saveInProgressRef.current) {
       console.log('Save already in progress, skipping...');
@@ -226,9 +210,10 @@ export default function ProjectQuestionnairePage() {
        setSuccess(true);
        setTimeout(() => setSuccess(false), 3000);
       
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Save failed:', err);
-      setError(err.message || 'Failed to save');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save';
+      setError(errorMessage);
       
       // Re-enable change tracking on error too
       skipChangeTrackingRef.current = false;
@@ -236,7 +221,22 @@ export default function ProjectQuestionnairePage() {
       setLoading(false);
       saveInProgressRef.current = false;
     }
-  };
+  }, [loading, projectId, projectInfo, clientInfo, contractorInfo]);
+
+  // Keyboard shortcut for saving (Ctrl+S / Cmd+S)
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        if (hasUnsavedChanges && !loading) {
+          handleSave();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [hasUnsavedChanges, loading, handleSave]);
 
   function handleCopy(text: string) {
     navigator.clipboard.writeText(text)
@@ -379,7 +379,7 @@ export default function ProjectQuestionnairePage() {
                 setHasUnsavedChanges(false);
                 setError(null);
               }
-            } catch (err: any) {
+            } catch (err: unknown) {
               console.error('Refresh error:', err);
               setError('Failed to refresh project data');
             }
