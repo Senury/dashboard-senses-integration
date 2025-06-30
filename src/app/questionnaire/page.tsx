@@ -17,7 +17,7 @@ import {
   DialogTrigger 
 } from "@/components/ui/dialog"
 import { Plus } from "lucide-react"
-import { supabase } from "@/lib/supabaseClient"
+import { supabase, isSupabaseConfigured } from "@/lib/supabaseClient"
 
 // Function to generate random project ID in format XXXX-XXXX-XXXX-XXXX
 function generateProjectId(): string {
@@ -40,6 +40,7 @@ export default function QuestionnairePage() {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [isMounted, setIsMounted] = React.useState(false);
   
   // Form state
   const [projectName, setProjectName] = React.useState('');
@@ -47,15 +48,30 @@ export default function QuestionnairePage() {
   const [contractor, setContractor] = React.useState('Senses Integration');
   const [previewProjectId, setPreviewProjectId] = React.useState('');
 
+  // Track if component is mounted (client-side)
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // Generate a preview project ID when dialog opens
   React.useEffect(() => {
-    if (isDialogOpen) {
+    if (isDialogOpen && isMounted) {
       setPreviewProjectId(generateProjectId());
     }
-  }, [isDialogOpen]);
+  }, [isDialogOpen, isMounted]);
 
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isMounted) {
+      setError('Page is still loading, please try again');
+      return;
+    }
+    
+    if (!isSupabaseConfigured()) {
+      setError('Database connection not configured. Please check your environment variables.');
+      return;
+    }
     
     if (!projectName.trim() || !clientName.trim()) {
       setError('Project name and client name are required');
@@ -104,6 +120,19 @@ export default function QuestionnairePage() {
       setLoading(false);
     }
   };
+
+  // Don't render anything until mounted (prevents SSR issues)
+  if (!isMounted) {
+    return (
+      <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <div className="bg-white rounded-lg shadow p-6">
+          <div className="text-center py-8">
+            <div className="text-lg">Loading...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

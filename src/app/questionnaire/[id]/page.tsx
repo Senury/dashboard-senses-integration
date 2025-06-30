@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useParams } from "next/navigation"
-import { supabase } from '@/lib/supabaseClient'
+import { supabase, isSupabaseConfigured } from '@/lib/supabaseClient'
 
 export default function ProjectQuestionnairePage() {
   const params = useParams();
@@ -19,6 +19,7 @@ export default function ProjectQuestionnairePage() {
   const [contractorInfo, setContractorInfo] = React.useState("")
   const [initialLoading, setInitialLoading] = React.useState(true)
   const [fetchError, setFetchError] = React.useState<string | null>(null)
+  const [isMounted, setIsMounted] = React.useState(false)
 
   // Extract values for actions
   const projectName = projectInfo || "Project"
@@ -37,10 +38,21 @@ export default function ProjectQuestionnairePage() {
   const saveInProgressRef = React.useRef(false);
   const skipChangeTrackingRef = React.useRef(false);
 
+  // Track if component is mounted (client-side)
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   // Fetch project data on component mount
   React.useEffect(() => {
     async function fetchProjectData() {
-      if (!projectId) return;
+      if (!projectId || !isMounted) return;
+      
+      if (!isSupabaseConfigured()) {
+        setFetchError('Database connection not configured. Please check your environment variables.');
+        setInitialLoading(false);
+        return;
+      }
       
       setInitialLoading(true);
       setFetchError(null);
@@ -81,7 +93,7 @@ export default function ProjectQuestionnairePage() {
     }
     
     fetchProjectData();
-  }, [projectId]);
+  }, [projectId, isMounted]);
 
   // Track unsaved changes
   React.useEffect(() => {
@@ -113,8 +125,13 @@ export default function ProjectQuestionnairePage() {
 
   const handleSave = React.useCallback(async () => {
     // Prevent multiple simultaneous saves using both state and ref
-    if (loading || saveInProgressRef.current) {
-      console.log('Save already in progress, skipping...');
+    if (loading || saveInProgressRef.current || !isMounted) {
+      console.log('Save already in progress or component not mounted, skipping...');
+      return;
+    }
+
+    if (!isSupabaseConfigured()) {
+      setError('Database connection not configured. Please check your environment variables.');
       return;
     }
 
@@ -221,7 +238,7 @@ export default function ProjectQuestionnairePage() {
       setLoading(false);
       saveInProgressRef.current = false;
     }
-  }, [loading, projectId, projectInfo, clientInfo, contractorInfo]);
+  }, [loading, projectId, projectInfo, clientInfo, contractorInfo, isMounted]);
 
   // Keyboard shortcut for saving (Ctrl+S / Cmd+S)
   React.useEffect(() => {
@@ -245,6 +262,17 @@ export default function ProjectQuestionnairePage() {
   function handleDelete() {
     // Placeholder for delete logic
     alert("Delete Project action triggered.")
+  }
+
+  // Don't render anything until mounted (prevents SSR issues)
+  if (!isMounted) {
+    return (
+      <div className="flex flex-col gap-6 p-4 w-full max-w-none">
+        <div className="text-center py-8">
+          <div className="text-lg">Loading...</div>
+        </div>
+      </div>
+    );
   }
 
   // Show loading state while fetching initial data
@@ -351,7 +379,12 @@ export default function ProjectQuestionnairePage() {
         <Button
           variant="outline"
           onClick={async () => {
-            if (!projectId) return;
+            if (!projectId || !isMounted) return;
+            
+            if (!isSupabaseConfigured()) {
+              setError('Database connection not configured. Please check your environment variables.');
+              return;
+            }
             
             try {
               const { data, error } = await supabase
